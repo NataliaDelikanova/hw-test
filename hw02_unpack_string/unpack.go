@@ -15,41 +15,28 @@ func Unpack(s string) (string, error) {
 
 	if rsLen == 0 {
 		return "", nil
-	} else if err := validateString(rs); err != nil {
-		return "", err
+	} else if unicode.IsDigit(rs[0]) {
+		return "", ErrInvalidString
 	}
 
 	var b strings.Builder
 	for i := 0; i < rsLen; i++ {
-		if i+1 < rsLen && unicode.IsDigit(rs[i+1]) {
+		switch {
+		// string should not include numbers
+		case unicode.IsDigit(rs[i]) && unicode.IsDigit(rs[i-1]):
+			return "", ErrInvalidString
+		case i+1 < rsLen && unicode.IsDigit(rs[i+1]):
 			count, err := strconv.Atoi(string(rs[i+1]))
 			if err != nil {
-				panic(err)
+				return "", err
 			}
 			b.WriteString(strings.Repeat(string(rs[i]), count))
 
 			// digits should be skipped in result string
 			i++
-		} else {
+		default:
 			b.WriteString(string(rs[i]))
 		}
 	}
 	return b.String(), nil
-}
-
-func validateString(rs []rune) error {
-	rsLen := len(rs)
-
-	// string should not begin with digit
-	if unicode.IsDigit(rs[0]) {
-		return ErrInvalidString
-	}
-
-	// string should not include numbers
-	for i := 1; i < rsLen; i++ {
-		if unicode.IsDigit(rs[i]) && unicode.IsDigit(rs[i-1]) {
-			return ErrInvalidString
-		}
-	}
-	return nil
 }
