@@ -79,4 +79,24 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+
+	t.Run("1 word", func(t *testing.T) {
+		require.Equal(t, []string{"short"}, Top10("short"))
+	})
+
+	t.Run("smiles", func(t *testing.T) {
+		require.Equal(t, []string{"💪", "💪💪", "🔥", "🔥💪"}, Top10("🔥 💪 💪 💪💪  🔥💪"))
+	})
+
+	t.Run("unicode", func(t *testing.T) {
+		require.Equal(t, []string{"hello", "world"}, Top10("hello\u0020hello world\u0020hello"))
+	})
+
+	t.Run("special characters", func(t *testing.T) {
+		require.Equal(t, []string{"@", "%", "42", "42.9%,", "Art", "№1", "№2"}, Top10("№2 №1 % 42.9%, @ Art 42 @"))
+	})
+
+	t.Run("figures", func(t *testing.T) {
+		require.Equal(t, []string{"t2", "0,1", "10", "10,1", "t1", "t10"}, Top10("t2 10,1 t1 t10 t2 10 0,1"))
+	})
 }
